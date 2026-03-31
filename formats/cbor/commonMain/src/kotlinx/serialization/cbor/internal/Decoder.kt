@@ -130,17 +130,22 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     override fun decodeBoolean() = parser.nextBoolean(tags)
 
     override fun decodeByte() = parser.nextNumberWithinRange(
-        tags, Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), "Byte"
+        tags, Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), UByte.MAX_VALUE.toLong(), "Byte"
     ).toByte()
+
     override fun decodeShort() = parser.nextNumberWithinRange(
-        tags, Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), "Short"
+        tags, Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), UShort.MAX_VALUE.toLong(), "Short"
     ).toShort()
+
     override fun decodeChar() = parser.nextNumberWithinRange(
-        tags, Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(), "Char"
+        tags, Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(),
+        /* no unsigned type for Char */ -1, "Char"
     ).toInt().toChar()
+
     override fun decodeInt() = parser.nextNumberWithinRange(
-        tags, Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), "Int"
+        tags, Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), UInt.MAX_VALUE.toLong(), "Int"
     ).toInt()
+
     override fun decodeLong() = parser.nextNumber(tags)
 
     override fun decodeNull() = parser.nextNull(tags)
@@ -353,10 +358,21 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    internal fun nextNumberWithinRange(tags: ULongArray?, from: Long, to: Long, type: String): Long {
+    internal fun nextNumberWithinRange(
+        tags: ULongArray?,
+        from: Long,
+        to: Long,
+        unsignedUpperBound: Long,
+        type: String,
+    ): Long {
         val number = nextNumber(tags)
-        if (number !in from..to) {
-            throw CborDecodingException("Decoded number $number is not within the range for type $type ([$from..$to])")
+        if (number !in from..to && number !in 0..unsignedUpperBound) {
+            throw CborDecodingException(buildString {
+                append("Decoded number $number is not within the range for type $type ([$from..$to])")
+                if (unsignedUpperBound >= 0) {
+                    append(", nor it is within the range for U$type ([0..$unsignedUpperBound])")
+                }
+            })
         }
         return number
     }

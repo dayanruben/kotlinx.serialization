@@ -612,26 +612,42 @@ class CborDecoderTest {
         val singleByteValue = "BF6176182AFF"
         //       39: two-byte int \   / -16162
         val twoByteValue = "BF6176393F21FF"
-        //       19: two-byte int \   / C0DE
+        //                       19: two-byte int \   / C0DE
         val twoByteValueWithShortOverflow = "BF617619C0DEFF"
+        //                       19: two-byte int \   / 01DE
+        val twoByteValueSlightlyOutOfByte = "BF61761901DEFF"
+        //                    38: negative single-byte int \   / 80
+        val negativeTwoByteValueSlightlyOutOfByte = "BF61763880FF"
         //       1A: four-byte int \  / 0BADC0DE
         val fourByteValue = "BF61761A0BADC0DEFF"
+        //                         1A: four-byte int \  / 0001CODE
+        val fourByteValueSlightlyOutOfShort = "BF61761A0001C0DEFF"
+        //                         39: two-byte negative int \  / 8000
+        val negativeFourByteValueSlightlyOutOfShort = "BF6176398000FF"
         //       1B: eight-byte int \  / 0BADC0DE15BAD000
         val eightByteValue = "BF61761B0BADC0DE15BAD000FF"
 
         assertEquals(0x2A, Cbor.decodeFromHexString<IntHolder>(singleByteValue).v)
         assertEquals(0xC0DE, Cbor.decodeFromHexString<IntHolder>(twoByteValueWithShortOverflow).v)
         assertEquals(0xBADC0DE, Cbor.decodeFromHexString<IntHolder>(fourByteValue).v)
+        assertEquals(0x1C0DE,Cbor.decodeFromHexString<IntHolder>(fourByteValueSlightlyOutOfShort).v)
+        assertEquals(-32769,Cbor.decodeFromHexString<IntHolder>(negativeFourByteValueSlightlyOutOfShort).v)
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<IntHolder>(eightByteValue) }
 
         assertEquals(0x2A, Cbor.decodeFromHexString<ShortHolder>(singleByteValue).v)
         assertEquals(0xC0DE.toShort(), Cbor.decodeFromHexString<ShortHolder>(twoByteValue).v)
-        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(twoByteValueWithShortOverflow) }
+        assertEquals(0xC0DE.toShort(), Cbor.decodeFromHexString<ShortHolder>(twoByteValueWithShortOverflow).v)
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(fourByteValue) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(fourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(negativeFourByteValueSlightlyOutOfShort) }
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(eightByteValue) }
 
         assertEquals(0x2A, Cbor.decodeFromHexString<ByteHolder>(singleByteValue).v)
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(twoByteValue) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(twoByteValueSlightlyOutOfByte) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(fourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(negativeTwoByteValueSlightlyOutOfByte) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(negativeFourByteValueSlightlyOutOfShort) }
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(fourByteValue) }
         assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(eightByteValue) }
     }
@@ -708,5 +724,18 @@ class CborDecoderTest {
         assertFailsWith<CborDecodingException> {
             Cbor.decodeFromHexString<BytesHolder>(paddedInput)
         }
+    }
+
+    @Test
+    fun testEncodeUnsignedValuesFromPositiveInteger() {
+        assertEquals(200U.toUByte(), Cbor.decodeFromHexString<UByte>("18C8"))
+        checkDecodingException<UByte>("197D00", "Decoded number 32000 is not within the range for type Byte ([-128..127]), nor it is within the range for UByte ([0..255])")
+        assertEquals(32000U.toUShort(), Cbor.decodeFromHexString<UShort>("197D00"))
+        assertEquals(32000.toChar(), Cbor.decodeFromHexString<Char>("197D00"))
+        checkDecodingException<Char>("1A80000000", "Decoded number 2147483648 is not within the range for type Char ([0..65535])")
+        checkDecodingException<UShort>("1A80000000", "Decoded number 2147483648 is not within the range for type Short ([-32768..32767]), nor it is within the range for UShort ([0..65535])")
+        assertEquals(2147483648U, Cbor.decodeFromHexString<UInt>("1A80000000"))
+        checkDecodingException<UInt>("1B8000000000000000", "Decoded number -9223372036854775808 is not within the range for type Int ([-2147483648..2147483647]), nor it is within the range for UInt ([0..4294967295])")
+        assertEquals(9223372036854775808UL, Cbor.decodeFromHexString<ULong>("1B8000000000000000"))
     }
 }
