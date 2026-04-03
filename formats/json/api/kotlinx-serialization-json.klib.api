@@ -195,6 +195,9 @@ final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.js
     final var encodeDefaults // kotlinx.serialization.json/JsonBuilder.encodeDefaults|{}encodeDefaults[0]
         final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
         final fun <set-encodeDefaults>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.encodeDefaults.<set-encodeDefaults>|<set-encodeDefaults>(kotlin.Boolean){}[0]
+    final var exceptionsWithDebugInfo // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo|{}exceptionsWithDebugInfo[0]
+        final fun <get-exceptionsWithDebugInfo>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo.<get-exceptionsWithDebugInfo>|<get-exceptionsWithDebugInfo>(){}[0]
+        final fun <set-exceptionsWithDebugInfo>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo.<set-exceptionsWithDebugInfo>|<set-exceptionsWithDebugInfo>(kotlin.Boolean){}[0]
     final var explicitNulls // kotlinx.serialization.json/JsonBuilder.explicitNulls|{}explicitNulls[0]
         final fun <get-explicitNulls>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.explicitNulls.<get-explicitNulls>|<get-explicitNulls>(){}[0]
         final fun <set-explicitNulls>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.explicitNulls.<set-explicitNulls>|<set-explicitNulls>(kotlin.Boolean){}[0]
@@ -261,8 +264,33 @@ final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serializat
     final var classDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode|{}classDiscriminatorMode[0]
         final fun <get-classDiscriminatorMode>(): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<get-classDiscriminatorMode>|<get-classDiscriminatorMode>(){}[0]
         final fun <set-classDiscriminatorMode>(kotlinx.serialization.json/ClassDiscriminatorMode) // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<set-classDiscriminatorMode>|<set-classDiscriminatorMode>(kotlinx.serialization.json.ClassDiscriminatorMode){}[0]
+    final var exceptionsWithDebugInfo // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo|{}exceptionsWithDebugInfo[0]
+        final fun <get-exceptionsWithDebugInfo>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo.<get-exceptionsWithDebugInfo>|<get-exceptionsWithDebugInfo>(){}[0]
+        final fun <set-exceptionsWithDebugInfo>(kotlin/Boolean) // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo.<set-exceptionsWithDebugInfo>|<set-exceptionsWithDebugInfo>(kotlin.Boolean){}[0]
 
     final fun toString(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.toString|toString(){}[0]
+}
+
+final class kotlinx.serialization.json/JsonDecodingException : kotlinx.serialization.json/JsonException { // kotlinx.serialization.json/JsonDecodingException|null[0]
+    final val hint // kotlinx.serialization.json/JsonDecodingException.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String? // kotlinx.serialization.json/JsonDecodingException.hint.<get-hint>|<get-hint>(){}[0]
+    final val input // kotlinx.serialization.json/JsonDecodingException.input|{}input[0]
+        final fun <get-input>(): kotlin/String? // kotlinx.serialization.json/JsonDecodingException.input.<get-input>|<get-input>(){}[0]
+    final val offset // kotlinx.serialization.json/JsonDecodingException.offset|{}offset[0]
+        final fun <get-offset>(): kotlin/Int // kotlinx.serialization.json/JsonDecodingException.offset.<get-offset>|<get-offset>(){}[0]
+    final val path // kotlinx.serialization.json/JsonDecodingException.path|{}path[0]
+        final fun <get-path>(): kotlin/String? // kotlinx.serialization.json/JsonDecodingException.path.<get-path>|<get-path>(){}[0]
+    final val shortMessage // kotlinx.serialization.json/JsonDecodingException.shortMessage|{}shortMessage[0]
+        final fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json/JsonDecodingException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
+}
+
+final class kotlinx.serialization.json/JsonEncodingException : kotlinx.serialization.json/JsonException { // kotlinx.serialization.json/JsonEncodingException|null[0]
+    final val classSerialName // kotlinx.serialization.json/JsonEncodingException.classSerialName|{}classSerialName[0]
+        final fun <get-classSerialName>(): kotlin/String? // kotlinx.serialization.json/JsonEncodingException.classSerialName.<get-classSerialName>|<get-classSerialName>(){}[0]
+    final val hint // kotlinx.serialization.json/JsonEncodingException.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String? // kotlinx.serialization.json/JsonEncodingException.hint.<get-hint>|<get-hint>(){}[0]
+    final val shortMessage // kotlinx.serialization.json/JsonEncodingException.shortMessage|{}shortMessage[0]
+        final fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json/JsonEncodingException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
 }
 
 final class kotlinx.serialization.json/JsonObject : kotlin.collections/Map<kotlin/String, kotlinx.serialization.json/JsonElement>, kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonObject|null[0]
@@ -321,6 +349,15 @@ sealed class kotlinx.serialization.json/JsonElement { // kotlinx.serialization.j
     final object Companion { // kotlinx.serialization.json/JsonElement.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonElement.Companion.serializer|serializer(){}[0]
     }
+}
+
+sealed class kotlinx.serialization.json/JsonException : kotlinx.serialization/SerializationException { // kotlinx.serialization.json/JsonException|null[0]
+    abstract val hint // kotlinx.serialization.json/JsonException.hint|{}hint[0]
+        abstract fun <get-hint>(): kotlin/String? // kotlinx.serialization.json/JsonException.hint.<get-hint>|<get-hint>(){}[0]
+    abstract val shortMessage // kotlinx.serialization.json/JsonException.shortMessage|{}shortMessage[0]
+        abstract fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json/JsonException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
+    open val message // kotlinx.serialization.json/JsonException.message|{}message[0]
+        open fun <get-message>(): kotlin/String // kotlinx.serialization.json/JsonException.message.<get-message>|<get-message>(){}[0]
 }
 
 sealed class kotlinx.serialization.json/JsonPrimitive : kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonPrimitive|null[0]
