@@ -2,6 +2,7 @@ import groovy.util.*
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
+import java.nio.file.Paths
 
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -66,6 +67,7 @@ afterEvaluate {
                         artifactId = project.name
                         reconfigureMultiplatformPublication(publications.getByName("jvm") as MavenPublication)
                     }
+
                     "metadata", "jvm", "js", "native" -> artifactId = "${project.name}-$type"
                 }
                 logger.info("Artifact id = $artifactId")
@@ -89,7 +91,7 @@ val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
 
 publishing {
     repositories {
-        addPublishingRepositoryIfPresent()
+        addPublishingRepository()
 
         /**
          * Maven repository in build directory to check published artifacts.
@@ -249,17 +251,17 @@ fun MavenPublication.signPublicationIfKeyPresent() {
     }
 }
 
-// Artifacts are published to an intermediate repo (libs.repo.url) first,
-// and then deployed to the central portal.
-fun RepositoryHandler.addPublishingRepositoryIfPresent() {
-    val repositoryUrl = getSensitiveProperty("libs.repo.url")
-    if (!repositoryUrl.isNullOrBlank()) {
-        maven {
-            url = uri(repositoryUrl)
-            credentials {
-                username = getSensitiveProperty("libs.repo.user")
-                password = getSensitiveProperty("libs.repo.password")
-            }
+// Artifacts are published to a local repo, then all combined into a deployment bundle elsewhere
+fun RepositoryHandler.addPublishingRepository() {
+    val buildRepoLocationProperty = getSensitiveProperty("build.repo.path")
+    val buildRepoLocation: Any = if (buildRepoLocationProperty.isNullOrBlank()) {
+        project.rootProject.layout.buildDirectory.dir("repo")
+    } else {
+        Paths.get(buildRepoLocationProperty).toUri()
+    }
+    maven {
+        maven(buildRepoLocation) {
+            name = "buildRepo"
         }
     }
 }
